@@ -335,8 +335,6 @@ tfoot td{padding:9px 11px; background:var(--panel2); font-weight:700; font-size:
 <body>
 <div class="tj-root" id="tjRoot">
   <div class="tj-header">
-     <!-- این خط را برای نمایش لوگو در سمت چپ اضافه کنید -->
-      <img src="logo.png" alt="Logo" style="width: 48px; height: 48px; border-radius: 8px; object-fit: cover;">
     <div>
       <div class="eyebrow">TRADING DESK · ULTIMATE PRO PWA</div>
       <h1>میز کار معامله‌گری و ژورنال هوشمند</h1>
@@ -351,6 +349,8 @@ tfoot td{padding:9px 11px; background:var(--panel2); font-weight:700; font-size:
       <div class="tj-clock" id="tjClock">🇬🇧 --:--:-- BST</div>
       <select class="tj-pair-select" id="headerPairSelect" title="تغییر سریع نماد فعال"></select>
     </div>
+    <!-- لوگو کاملاً چسبید به گوشه سمت چپ هدر با ابعاد دقیق -->
+    <img src="logo.png" alt="Logo" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 8px; object-fit: cover;">
   </div>
 
   <!-- Tilt / Circuit Breaker Banner -->
