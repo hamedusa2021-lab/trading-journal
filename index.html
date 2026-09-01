@@ -4073,51 +4073,69 @@ tfoot td{padding:9px 11px; background:var(--panel2); font-weight:700; font-size:
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 /* ===== FREE CLOUD SYNC (Supabase) =====
-   Put your Supabase Project URL and anon/publishable key below.
-   NEVER put a service_role/secret key in this HTML. */
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
 const TJ_SUPABASE_URL = 'https://vwjpunrncpksffwmpxzz.supabase.co';
-const TJ_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ3anB1bnJuY3Brc2Zmd21weHp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgyNzgyMTQsImV4cCI6MjEwMzg1NDIxNH0.p7fX3yzBIm42b2C8oawouzbsqr4_lM8oNILpitpJ3QQ';
+const TJ_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ3anB1bnJuY3Brc2Zmd21weHp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAzNTI1OTgsImV4cCI6MjA1NTkyODU5OH0.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ3anB1bnJuY3Brc2Zmd21weHp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAzNTI1OTgsImV4cCI6MjA1NTkyODU5OH0';
+
 (function(){
-  const statusEl=document.getElementById('cloudStatus'), loginBtn=document.getElementById('cloudLoginBtn'), syncBtn=document.getElementById('cloudSyncBtn'), logoutBtn=document.getElementById('cloudLogoutBtn');
-  const ready = true;
-  let sb=null;
-  const setStatus=(t,ok)=>{statusEl.textContent=t;statusEl.style.color=ok?'#2FBF9F':'#E3A83B';};
-  if(!ready){setStatus('نیاز به تنظیم Supabase',false); loginBtn.onclick=()=>alert('ابتدا TJ_SUPABASE_URL و TJ_SUPABASE_ANON_KEY را در کد وارد کنید. SQL همراه فایل را در Supabase اجرا کنید.'); return;}
-  sb=window.supabase.createClient(TJ_SUPABASE_URL,TJ_SUPABASE_ANON_KEY);
-  async function session(){const r=await sb.auth.getSession();return r.data.session;}
-  async function getLocalData(){return await idbGet('tj_master_data');}
+  const statusEl = document.getElementById('cloudStatus');
+  const loginBtn = document.getElementById('cloudLoginBtn');
+  const syncBtn = document.getElementById('cloudSyncBtn');
+  const logoutBtn = document.getElementById('cloudLogoutBtn');
+
+  const sb = window.supabase.createClient(TJ_SUPABASE_URL, TJ_SUPABASE_ANON_KEY);
+  const setStatus = (t, ok) => { if(statusEl){ statusEl.textContent = t; statusEl.style.color = ok ? '#2FBF9F' : '#E3A83B'; } };
+
+  setStatus('آماده', true);
+
+  async function session(){ const r = await sb.auth.getSession(); return r.data.session; }
+  async function getLocalData(){ return await idbGet('tj_master_data'); }
+
   async function syncCloud(){
-    const sess=await session(); if(!sess){setStatus('ابتدا وارد شوید',false);return;}
-    const local=await getLocalData(); if(!local){setStatus('داده محلی نیست',false);return;}
-    setStatus('در حال همگام‌سازی…',false);
-    const payload={user_id:sess.user.id,data:local,updated_at:new Date().toISOString()};
-    const {error}=await sb.from('journal_data').upsert(payload,{onConflict:'user_id'});
-    if(error){console.error(error);setStatus('خطای Sync',false);alert(error.message);return;}
-    setStatus('همگام شد ✓',true);
+    const sess = await session();
+    if(!sess){ setStatus('ابتدا وارد شوید', false); return; }
+    const local = await getLocalData();
+    if(!local){ setStatus('داده محلی نیست', false); return; }
+    setStatus('در حال همگام‌سازی…', false);
+    const payload = { user_id: sess.user.id, data: local, updated_at: new Date().toISOString() };
+    const { error } = await sb.from('journal_data').upsert(payload, { onConflict: 'user_id' });
+    if(error){ console.error(error); setStatus('خطای Sync', false); alert(error.message); return; }
+    setStatus('همگام شد ✓', true);
   }
+
   async function pullCloud(){
-    const sess=await session(); if(!sess)return;
-    const {data,error}=await sb.from('journal_data').select('data,updated_at').eq('user_id',sess.user.id).maybeSingle();
-    if(error){console.error(error);setStatus('خطای دریافت',false);return;}
-    if(data&&data.data){await idbSet('tj_master_data',data.data); location.reload();}
-  }
-  loginBtn.onclick=async()=>{
-    const email=prompt('ایمیل:'); if(!email)return;
-    const password=prompt('رمز عبور (حداقل 6 کاراکتر):'); if(!password)return;
-    let r=await sb.auth.signInWithPassword({email,password});
-    if(r.error){
-      const create=confirm('ورود ناموفق بود. حساب جدید با همین ایمیل ساخته شود؟');
-      if(create) r=await sb.auth.signUp({email,password});
+    const sess = await session();
+    if(!sess) return;
+    const { data, error } = await sb.from('journal_data').select('data, updated_at').eq('user_id', sess.user.id).maybeSingle();
+    if(error){ console.error(error); setStatus('خطای دریافت', false); return; }
+    if(data && data.data){
+      await idbSet('tj_master_data', data.data);
+      setStatus('دریافت شد ✓', true);
+      setTimeout(() => location.reload(), 800);
     }
-    if(r.error){alert(r.error.message);setStatus('ورود ناموفق',false);return;}
-    setStatus('وارد شد ✓',true);
+  }
+
+  loginBtn.onclick = async () => {
+    const email = prompt('ایمیل:'); if(!email) return;
+    const password = prompt('رمز عبور (حداقل 6 کاراکتر):'); if(!password) return;
+    let r = await sb.auth.signInWithPassword({ email, password });
+    if(r.error){
+      const create = confirm('ورود ناموفق بود. حساب جدید با همین ایمیل ساخته شود؟');
+      if(create) r = await sb.auth.signUp({ email, password });
+    }
+    if(r.error){ alert(r.error.message); setStatus('ورود ناموفق', false); return; }
+    setStatus('وارد شد ✓', true);
     await pullCloud();
     await syncCloud();
   };
-  syncBtn.onclick=syncCloud;
-  logoutBtn.onclick=async()=>{await sb.auth.signOut();setStatus('خارج شد',false);};
-  sb.auth.onAuthStateChange((_e,s)=>setStatus(s?'وارد شده ✓':'آماده',!!s));
-  setInterval(()=>{ if(document.visibilityState==='visible') syncCloud().catch(()=>{}); },60000);
+
+  syncBtn.onclick = syncCloud;
+  logoutBtn.onclick = async () => { await sb.auth.signOut(); setStatus('خارج شد', false); };
+
+  sb.auth.onAuthStateChange((_e, s) => {
+    setStatus(s ? 'وارد شده ✓' : 'آماده', !!s);
+  });
 })();
 </script>
 </body>
