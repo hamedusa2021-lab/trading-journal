@@ -4079,7 +4079,7 @@ const TJ_SUPABASE_URL = 'https://vwjpunrncpksffwmpxzz.supabase.co';
 const TJ_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ3anB1bnJuY3Brc2Zmd21weHp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgyNzgyMTQsImV4cCI6MjEwMzg1NDIxNH0.p7fX3yzBIm42b2C8oawouzbsqr4_lM8oNILpitpJ3QQ';
 (function(){
   const statusEl=document.getElementById('cloudStatus'), loginBtn=document.getElementById('cloudLoginBtn'), syncBtn=document.getElementById('cloudSyncBtn'), logoutBtn=document.getElementById('cloudLogoutBtn');
-  const ready = TJ_SUPABASE_URL.startsWith('https://') && !TJ_SUPABASE_URL.includes('PASTE_') && !TJ_SUPABASE_ANON_KEY.includes('PASTE_');
+  const ready = true;
   let sb=null;
   const setStatus=(t,ok)=>{statusEl.textContent=t;statusEl.style.color=ok?'#2FBF9F':'#E3A83B';};
   if(!ready){setStatus('نیاز به تنظیم Supabase',false); loginBtn.onclick=()=>alert('ابتدا TJ_SUPABASE_URL و TJ_SUPABASE_ANON_KEY را در کد وارد کنید. SQL همراه فایل را در Supabase اجرا کنید.'); return;}
